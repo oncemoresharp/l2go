@@ -1,0 +1,36 @@
+# golangci-lint configuration
+run:
+  # Exclude Go standard library from linting
+  skip-dirs:
+    - vendor
+  skip-files:
+    - ".*\\.pb\\.go$"
+  
+linters-settings:
+  # Configure specific linters
+  govet:
+    # Disable nilness check for standard library
+    disable:
+      - nilness
+      
+issues:
+  # Exclude issues from Go standard library
+  exclude-rules:
+    - path: ".*Program Files.*Go.*src.*"
+      linters:
+        - nilnil
+        - contextcheck
+    - path: "/usr/local/go/src/"
+      linters:
+        - nilnil
+        - contextcheck
+
+linters:
+  enable:
+    - gofmt
+    - golint
+    - govet
+    - ineffassign
+    - misspell
+  disable:
+    - contextcheck # Disable if it's causing issues with stdlib

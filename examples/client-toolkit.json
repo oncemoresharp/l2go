@@ -1,0 +1,88 @@
+{
+    "client": {
+        "loginServerHost": "127.0.0.1",
+        "loginServerPort": 2106,
+        "gameServerHost": "127.0.0.1",
+        "gameServerPort": 7777,
+        "username": "testuser",
+        "password": "testpass",
+        "autoCreate": true,
+        "timeout": "30s"
+    },
+    "manager": {
+        "maxClients": 1000,
+        "connectInterval": "100ms",
+        "healthCheck": "5s",
+        "retryAttempts": 3,
+        "retryDelay": "1s"
+    },
+    "loadTest": {
+        "defaultClientCount": 10,
+        "defaultDuration": "60s",
+        "defaultRampUpTime": "10s",
+        "maxConcurrentTests": 5,
+        "reportFormat": "json"
+    },
+    "logging": {
+        "level": "info",
+        "format": "json",
+        "output": "stdout",
+        "packetLogging": false,
+        "rotateSize": 104857600,
+        "rotateCount": 5
+    },
+    "profiles": {
+        "active": "development",
+        "development": {
+            "loginServer": {
+                "host": "127.0.0.1",
+                "port": 2106,
+                "timeout": "30s"
+            },
+            "gameServer": {
+                "host": "127.0.0.1",
+                "port": 7777,
+                "timeout": "30s"
+            },
+            "credentials": {
+                "username": "devuser",
+                "password": "devpass",
+                "autoCreate": true
+            }
+        },
+        "testing": {
+            "loginServer": {
+                "host": "test.l2go.local",
+                "port": 2106,
+                "timeout": "15s"
+            },
+            "gameServer": {
+                "host": "test.l2go.local",
+                "port": 7777,
+                "timeout": "15s"
+            },
+            "credentials": {
+                "username": "testuser",
+                "password": "testpass",
+                "autoCreate": false
+            }
+        },
+        "production": {
+            "loginServer": {
+                "host": "login.l2go.com",
+                "port": 2106,
+                "timeout": "10s"
+            },
+            "gameServer": {
+                "host": "game.l2go.com",
+                "port": 7777,
+                "timeout": "10s"
+            },
+            "credentials": {
+                "username": "",
+                "password": "",
+                "autoCreate": false
+            }
+        }
+    }
+}

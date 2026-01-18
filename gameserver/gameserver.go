@@ -1,25 +1,26 @@
 package gameserver
 
 import (
-  "errors"
 	"bytes"
+	"database/sql"
+	"errors"
 	"fmt"
+	"net"
+	"strconv"
+
 	"github.com/frostwind/l2go/config"
-	"github.com/frostwind/l2go/packets"
 	"github.com/frostwind/l2go/gameserver/clientpackets"
 	"github.com/frostwind/l2go/gameserver/models"
 	"github.com/frostwind/l2go/gameserver/serverpackets"
-	"gopkg.in/mgo.v2"
-	"net"
-	"strconv"
+	"github.com/frostwind/l2go/packets"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type GameServer struct {
 	clients           []*models.Client
-	database          *mgo.Database
+	database          *sql.DB
 	config            config.GameServerConfigObject
 	status            gameServerStatus
-	databaseSession   *mgo.Session
 	clientListener    net.Listener
 	loginServerSocket net.Conn
 }
@@ -88,16 +89,26 @@ func New(cfg config.GameServerConfigObject) *GameServer {
 func (g *GameServer) Init() {
 	var err error
 
-	// Connect to our database
-	g.databaseSession, err = mgo.Dial(g.config.GameServer.Database.Host + ":" + strconv.Itoa(g.config.GameServer.Database.Port))
+	// Connect to MySQL database
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
+		g.config.GameServer.Database.User,
+		g.config.GameServer.Database.Password,
+		g.config.GameServer.Database.Host,
+		g.config.GameServer.Database.Port,
+		g.config.GameServer.Database.Name)
+
+	g.database, err = sql.Open("mysql", dsn)
 	if err != nil {
-		panic("Couldn't connect to the database server")
-	} else {
-		fmt.Println("Successfully connected to the database server")
+		panic("Couldn't connect to the database server: " + err.Error())
 	}
 
-	// Select the appropriate database
-	g.database = g.databaseSession.DB(g.config.GameServer.Database.Name)
+	// Test the connection
+	err = g.database.Ping()
+	if err != nil {
+		panic("Couldn't ping the database server: " + err.Error())
+	}
+
+	fmt.Println("Successfully connected to the MySQL database server")
 
 	// Connect to the login server
 	g.loginServerSocket, err = net.Dial("tcp", g.config.LoginServer.Host+":9413")
@@ -117,30 +128,30 @@ func (g *GameServer) Init() {
 }
 
 func (g *GameServer) Start() {
-	defer g.databaseSession.Close()
+	defer g.database.Close()
 	defer g.clientListener.Close()
 
 	done := make(chan bool)
 
 	go func() {
-    g.Send([]byte{00, 01, 02})
+		g.Send([]byte{00, 01, 02})
 
-    for {
-      opcode, _, err := g.Receive()
+		for {
+			opcode, _, err := g.Receive()
 
-      if err != nil {
-        fmt.Println(err)
-        fmt.Println("Closing the connection...")
-        break
-      }
+			if err != nil {
+				fmt.Println(err)
+				fmt.Println("Closing the connection...")
+				break
+			}
 
-      switch opcode {
-      case 00:
-        fmt.Println("A game server sent a request to register")
-      default:
-        fmt.Println("Can't recognize the packet sent by the gameserver")
-      }
-    }
+			switch opcode {
+			case 00:
+				fmt.Println("A game server sent a request to register")
+			default:
+				fmt.Println("Can't recognize the packet sent by the gameserver")
+			}
+		}
 		done <- true
 	}()
 
@@ -157,11 +168,9 @@ func (g *GameServer) Start() {
 				go g.handleClientPackets(client)
 			}
 		}
-
-		done <- true
 	}()
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 1; i++ {
 		<-done
 	}
 }
@@ -196,7 +205,7 @@ func (g *GameServer) handleClientPackets(client *models.Client) {
 	}
 
 	if protocolVersion.Version < 419 {
-		fmt.Println("Wrong protocol version ! <Expected 419> <Got: %d>", protocolVersion.Version)
+		fmt.Printf("Wrong protocol version ! <Expected 419> <Got: %d>\n", protocolVersion.Version)
 		return
 	}
 

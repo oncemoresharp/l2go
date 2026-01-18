@@ -12,10 +12,10 @@ var defaultServerConfig = `{
     "host": "127.0.0.1",
     "autoCreate": true,
     "database": {
-      "name": "l2go-login",
+      "name": "l2go",
       "host": "127.0.0.1",
-      "port": 27017,
-      "user": "",
+      "port": 3306,
+      "user": "root",
       "password": ""
     } 
   },
@@ -29,10 +29,10 @@ var defaultServerConfig = `{
       "port": 7777,
 
       "database": {
-        "name": "l2go-server",
+        "name": "l2go",
         "host": "127.0.0.1",
-        "port": 27017,
-        "user": "",
+        "port": 3306,
+        "user": "root",
         "password": ""
       },
 

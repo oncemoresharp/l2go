@@ -1,12 +1,8 @@
 package models
 
-import (
-	"gopkg.in/mgo.v2/bson"
-)
-
 type Account struct {
-	Id          bson.ObjectId `bson:"_id,omitempty"`
-	Username    string        `bson:"username"`
-	Password    string        `bson:"password"`
-	AccessLevel int8          `bson:"access_level"`
+	Id          int64  `json:"id"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	AccessLevel int8   `json:"access_level"`
 }

@@ -21,18 +21,18 @@ func main() {
 	globalConfig := config.Read()
 
 	if mode == 0 {
-    server := loginserver.New(globalConfig)
-    server.Init()
-    server.Start()
+		server := loginserver.New(globalConfig)
+		server.Init()
+		server.Start()
 	} else {
 		// Try to load the Game Server configuration
 		if gameServerId >= 1 && len(globalConfig.GameServers) >= gameServerId {
-      config := config.GameServerConfigObject{}
+			config := config.GameServerConfigObject{}
 			config.LoginServer = globalConfig.LoginServer
 			config.GameServer = globalConfig.GameServers[gameServerId-1]
-      server := gameserver.New(config)
-      server.Init()
-      server.Start()
+			server := gameserver.New(config)
+			server.Init()
+			server.Start()
 		} else {
 			fmt.Println("No configuration found for the specified server.")
 		}

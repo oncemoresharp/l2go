@@ -1,0 +1,11 @@
+{
+    "go.lintOnSave": "package",
+    "go.lintFlags": [
+        "--exclude-dirs=vendor",
+        "--skip-files=.*\\.pb\\.go$"
+    ],
+    "go.vetOnSave": "package",
+    "files.exclude": {
+        "**/Program Files/Go/src/**": true
+    }
+}
